@@ -31,6 +31,10 @@ dependencies {
     // API 문서화 - OpenAPI / Swagger UI
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:3.2.0'  // OpenAPI 문서 생성 및 Swagger UI 제공
     // =========================================================================
+    // 데이터베이스 - JPA, MySQL
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'   // JPA(Hibernate)로 DB 테이블과 객체 연결
+    runtimeOnly 'com.mysql:mysql-connector-j'                                // MySQL 접속 드라이버 (실행할 때만 필요)
+    // =========================================================================
     // 반복 코드 줄이기 - Lombok
     compileOnly 'org.projectlombok:lombok'                                   // 컴파일할 때 Lombok 애너테이션 사용
     annotationProcessor 'org.projectlombok:lombok'                           // 컴파일 중 Getter, Setter, Builder 등 생성
