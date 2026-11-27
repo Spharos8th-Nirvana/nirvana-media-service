@@ -79,7 +79,7 @@ build에 포함된 테스트 실행과 CI의 실제 검사 범위는 구분해�
 
 ```
 com.nirvana.media
-├── global/   # 여러 도메인이 같이 쓰는 코드: 공통 Entity 기반, 설정
+├── global/   # 여러 도메인이 같이 쓰는 코드: 공통 응답·예외, 요청자 정보, 공통 Entity 기반, 설정
 └── domain/   # 도메인별 코드
     └── media/
 ```
@@ -118,6 +118,21 @@ com.nirvana.media
 
 - `createdBy`, `updatedBy`에는 요청 본문의 값이 아니라 인증된 요청자나 이벤트 행위자의 UUID를 넘깁니다(MED-UPL-05).
 - `updatedBy`는 한 번도 바뀌지 않은 행에서 `NULL`입니다.
+
+### 공통 응답과 오류 (`global/response`, `global/exception`)
+
+- 일반 JSON API는 `ApiResponse<T>`(`success`, `data`, `error`)로 응답합니다. (MED-NFR-05)
+- 예상 가능한 업무 오류는 `BusinessException(ErrorCode)`로 던집니다. `GlobalExceptionHandler`가 `error.code`·`message`·`traceId`로 바꿉니다.
+- 요청 DTO `@Valid` 검증 실패는 400 `VALIDATION_FAILED`와 필드별 `error.details`로 응답합니다.
+- `traceId`는 Micrometer Tracing(W3C `traceparent`)의 Trace ID이고, 구할 수 없으면 `null`입니다. 성공 응답에는 넣지 않습니다.
+
+### 요청자 정보 (`global/auth`)
+
+- Gateway가 JWT를 검증한 뒤 넣어 준 `X-User-Id`(계정 UUID), `X-Account-Type`(`USER`, `OPERATOR`, `ADMIN`)을 읽습니다.
+- 컨트롤러에서 `@CurrentRequester Requester requester`로 받습니다. 헤더가 없거나 형식이 틀리면 401 `UNAUTHORIZED`입니다.
+- ADMIN만 부를 수 있는 API는 컨트롤러나 메서드에 `@AdminOnly`를 붙입니다. ADMIN이 아니면 Service 호출 전에 403 `FORBIDDEN`입니다.
+- 업로드한 사람(`createdBy`)에는 요청 본문의 값이 아니라 `Requester`의 UUID를 넘깁니다. (MED-UPL-05)
+- local 프로필의 Swagger UI에서는 Authorize 버튼으로 두 헤더를 넣고 호출합니다.
 
 ## 개발 규칙
 
