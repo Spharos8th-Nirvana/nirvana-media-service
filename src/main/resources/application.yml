@@ -1,6 +1,6 @@
 spring:
   application:
-    name: spring-service-template
+    name: media-service
   profiles:
     default: local
   cloud:
